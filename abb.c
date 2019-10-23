@@ -23,10 +23,20 @@ struct abb{
 * Primitivas del ABB
 ****************************/
 
-/*abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato){
+abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato){
+    abb_t* abb = malloc(sizeof(abb));
+
+    if (!abb) return NULL;
+
+    abb->raiz = NULL;
+	abb->cantidad = 0;
+	abb->cmp = cmp;
+	abb->destruir_dato = destruir_dato;
+
+    return abb;
 
 }
-*/
+
 
 /*bool abb_guardar(abb_t *arbol, const char *clave, void *dato){
 
