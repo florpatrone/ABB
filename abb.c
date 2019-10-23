@@ -3,6 +3,22 @@
 #include <stdlib.h>
 #include <string.h>
 
+struct nodo{
+    struct nodo* izq;
+    struct nodo* der; 
+    char* clave;
+    void* dato;
+};
+
+typedef struct nodo nodo_t;
+
+struct abb{
+    nodo_t* raiz;
+	size_t cantidad;
+    abb_comparar_clave_t cmp;
+    abb_destruir_dato_t destruir_dato;
+};
+
 /***************************
 * Primitivas del ABB
 ****************************/
