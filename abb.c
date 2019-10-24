@@ -27,6 +27,18 @@ struct abb{
 * Primitivas del ABB
 ****************************/
 
+nodo_t* proximo_inorder(nodo_t* nodo, int direccion){
+	if (direccion == DERECHA){
+		if (!nodo->der) return nodo;
+		return proximo_inorder(nodo->der,direccion);
+	}
+	
+	else if (direccion == IZQUIERDA){
+		if (!nodo->izq) return nodo;
+		return proximo_inorder(nodo->izq,direccion);
+	}
+}
+
 nodo_t* _abb_obtener(nodo_t* nodo, const char* clave, abb_comparar_clave_t cmp, bool obtener_padre){
 	if (!nodo) return NULL;
 
