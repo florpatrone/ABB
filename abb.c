@@ -4,6 +4,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+enum posicion{IZQUIERDA,RAIZ,DERECHA};
+typedef enum posicion posicion_t;
+
 struct nodo{
     struct nodo* izq;
     struct nodo* der; 
@@ -54,6 +57,46 @@ nodo_t* _abb_obtener(nodo_t* nodo, const char* clave, abb_comparar_clave_t cmp, 
 	return _abb_obtener(nodo->der,clave,cmp,obtener_padre);
 }
 
+void* _abb_borrar(abb_t* arbol, nodo_t* nodo, const char* clave, abb_comparar_clave_t cmp){
+	if (!nodo) return NULL;
+
+	nodo_t* padre = _abb_obtener(nodo,clave,cmp,OBTENER_PADRE);
+
+	if (!padre) return NULL;
+
+	void* dato = nodo->dato;
+	
+	//caso 3
+	if (nodo->der && nodo->izq){
+		nodo_t* reemplazo = proximo_inorder(nodo->der, IZQUIERDA);
+		char* clave_reemplazo = strdup(reemplazo->clave);
+		void* dato_reemplazo = _abb_borrar(arbol,reemplazo,reemplazo->clave,cmp);
+		nodo->clave = clave_reemplazo;
+		nodo->dato = dato_reemplazo;
+		arbol->cantidad--;
+		return dato;
+	}
+
+	//caso 1 y 2
+	nodo_t* nuevo_hijo = (nodo->der) ? nodo->der : nodo->izq;
+
+	if (padre->izq == nodo){
+		padre->izq = nuevo_hijo;
+	}
+
+	else if (padre->der == nodo){
+		padre->der = nuevo_hijo;
+	}
+	
+	else{
+		arbol->raiz = nuevo_hijo;
+	}
+
+	nodo_destruir(nodo);
+	arbol->cantidad--;
+	return dato;
+}
+
 abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato){
     abb_t* abb = malloc(sizeof(abb));
 
@@ -74,10 +117,9 @@ abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato){
 }
 */
 
-/*void *abb_borrar(abb_t *arbol, const char *clave){
-
+void *abb_borrar(abb_t *arbol, const char *clave){
+	return _abb_borrar(arbol,arbol->raiz,clave,arbol->cmp);
 }
-*/
 
 void *abb_obtener(const abb_t *arbol, const char *clave){
 	nodo_t* nodo = _abb_obtener(arbol->raiz,clave,arbol->cmp,!OBTENER_PADRE);
