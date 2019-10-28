@@ -38,6 +38,29 @@ nodo_t* crear_nodo(const char *clave,void *dato){
 }
 
 /***************************
+* Funciones Auxiliares
+****************************/
+
+bool _abb_guardar(abb_t *arbol, const char *clave, void *dato){
+	if (!abb) return false;
+	nodo_t* act = abb->raiz;
+	bool clave_mayor = abb->cmp(clave,act->clave) >= 0;
+	if (!act->der || !act->izq){
+		nodo_t nodo = crear_nodo(clave,valor);
+		if (!nodo) return false;
+	}
+	if (clave_mayor && act->der == NULL){
+		act->der = nodo;
+		return true;
+	}
+	if (!clave_mayor && act->izq == NULL){
+		act->izq = nodo;
+		return true;
+	}
+	return clave_mayor ? _abb_guardar(act->der,clave,valor) : _abb_guardar(act->izq,clave,valor);
+}
+
+/***************************
 * Primitivas del ABB
 ****************************/
 
@@ -138,10 +161,12 @@ abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato){
 }
 
 
-/*bool abb_guardar(abb_t *arbol, const char *clave, void *dato){
-
+bool abb_guardar(abb_t *arbol, const char *clave, void *dato){
+	if !(_abb_guardar(abb,clave,valor)) return NULL;
+	abb->cantidad++ ;
+	return true;
 }
-*/
+
 
 void *abb_borrar(abb_t *arbol, const char *clave){
 	return _abb_borrar(arbol,arbol->raiz,clave,arbol->cmp);
