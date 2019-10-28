@@ -24,6 +24,20 @@ struct abb{
 };
 
 /***************************
+* Primitivas del nodo
+****************************/
+
+nodo_t* crear_nodo(const char *clave,void *dato){
+	nodo_t* nodo = malloc(sizeof(nodo_t));
+	if (!nodo) return NULL;
+	nodo->izq = NULL;
+	nodo->der = NULL;
+	nodo->clave = clave;
+	nodo->dato = dato;
+	return nodo;
+}
+
+/***************************
 * Primitivas del ABB
 ****************************/
 
