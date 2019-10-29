@@ -1,5 +1,7 @@
 #define _POSIX_C_SOURCE 200809L 
 #define OBTENER_PADRE true
+#define PERTENECE true
+#define GUARDAR true
 #include "abb.h"
 #include <stdlib.h>
 #include <string.h>
@@ -41,23 +43,49 @@ nodo_t* crear_nodo(const char *clave,void *dato){
 * Funciones Auxiliares
 ****************************/
 
-bool _abb_guardar(abb_t *arbol, const char *clave, void *dato){
+bool abb_buscar_y(bool pertenencia, bool guardado, abb_t *abb, nodo_t* raiz, const char *clave, void *dato){
 	if (!abb) return false;
-	nodo_t* act = abb->raiz;
-	bool clave_mayor = abb->cmp(clave,act->clave) >= 0;
-	if (!act->der || !act->izq){
-		nodo_t nodo = crear_nodo(clave,valor);
-		if (!nodo) return false;
-	}
-	if (clave_mayor && act->der == NULL){
-		act->der = nodo;
+
+	nodo_t* act = raiz;
+	if (abb->cmp(clave, act->clave) == 0){
+		if (guardado){
+			act->dato = dato;
+		}
 		return true;
 	}
-	if (!clave_mayor && act->izq == NULL){
-		act->izq = nodo;
-		return true;
+
+	bool clave_mayor = abb->camp(clave,act->clave) > 0;
+	
+	if (pertenencia){
+		nodo_t* prox = clave_mayor ?  act->der : act->izq ;
+		return abb_buscar_y(pertenencia, guardado, abb, prox, clave, dato);
 	}
-	return clave_mayor ? _abb_guardar(act->der,clave,valor) : _abb_guardar(act->izq,clave,valor);
+
+	if (guardado){
+		if (clave_mayor && !act->der){
+			nodo_t* nodo = crear_nodo(clave,dato);
+			if (!nodo) return false;
+			act->der = nodo;
+			return true;
+		}
+		if (!clave_mayor && !act->izq){
+			nodo_t nodo = crear_nodo(clave,dato);
+			if (!nodo) return false;
+			act->izq = nodo;
+			return true;
+		}
+	}
+	nodo_t* prox = clave_mayor ? act->der : act->izq;
+	return abb_buscar_y(pertenencia, guardado, abb, prox, clave, dato);
+}
+
+void _destruir_nodos(nodo_t* raiz, abb_destruir_dato_t destruir_dato){
+	if (!raiz) return;
+	_destruir_nodos(raiz->izq,destruir_dato);
+	_destruir_nodos(raiz->der,destruir_dato);
+	
+	if (destruir_dato) destruir_dato(raiz->dato);
+	free(raiz);
 }
 
 /***************************
@@ -162,9 +190,11 @@ abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato){
 
 
 bool abb_guardar(abb_t *arbol, const char *clave, void *dato){
-	if !(_abb_guardar(abb,clave,valor)) return NULL;
-	abb->cantidad++ ;
-	return true;
+	nodo_t* actual = arbol->raiz;
+	bool guardado = abb_buscar_y(!PERTENECE, GUARDAR, arbol, actual, clave, dato);
+	bool pertenece = abb_buscar_y(PERTENECE, !GUARDAR, arbol, actual, clave, dato);
+	if (guardado && !pertenece) arbol->cantidad++;
+	return guardado;
 }
 
 
@@ -181,20 +211,22 @@ void *abb_obtener(const abb_t *arbol, const char *clave){
 }
 
 
-/*bool abb_pertenece(const abb_t *arbol, const char *clave){
-
+bool abb_pertenece(const abb_t *arbol, const char *clave){
+	nodo_t* primero = arbol->raiz;
+	return abb_buscar_y(PERTENECE, !GUARDAR, arbol, primero, clave, NULL);
 }
-*/
 
-/*size_t abb_cantidad(abb_t *arbol){
-
+size_t abb_cantidad(abb_t *arbol){
+	return arbol->cantidad;
 }
-*/
 
-/*void abb_destruir(abb_t *arbol){
 
+void abb_destruir(abb_t *arbol){
+	abb_destruir_dato_t destruir_dato = arbol->destruir_dato;
+	nodo_t* raiz = arbol->raiz;
+	_destruir_nodos(raiz, destruir_dato);
+	free(arbol);
 }
-*/
 
 /*********************************
 * Primitivas del iterador externo
