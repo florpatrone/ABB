@@ -41,11 +41,15 @@ nodo_t* crear_nodo(const char *clave,void *dato){
 	if (!nodo)	return NULL;
 	nodo->izq = NULL;
 	nodo->der = NULL;
-	nodo->clave = clave;
+	nodo->clave = strdup(clave);
 	nodo->dato = dato;
 	return nodo;
 }
 
+void destruir_nodo(nodo_t* nodo){
+	free(nodo->clave);
+	free(nodo);
+}
 /***************************
 * Funciones Auxiliares
 ****************************/
@@ -171,7 +175,7 @@ void* _abb_borrar(abb_t* arbol, nodo_t* nodo, const char* clave, abb_comparar_cl
 		arbol->raiz = nuevo_hijo;
 	}
 
-	nodo_destruir(nodo);
+	destruir_nodo(nodo);
 	arbol->cantidad--;
 	return dato;
 }
