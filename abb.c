@@ -5,6 +5,7 @@
 #include "abb.h"
 #include <stdlib.h>
 #include <string.h>
+#include "pila.h"
 
 enum posicion{IZQUIERDA,RAIZ,DERECHA};
 typedef enum posicion posicion_t;
@@ -18,12 +19,18 @@ struct nodo{
 
 typedef struct nodo nodo_t;
 
-struct abb{
+typedef struct abb{
     nodo_t* raiz;
 	size_t cantidad;
     abb_comparar_clave_t cmp;
     abb_destruir_dato_t destruir_dato;
-};
+} abb_t;
+
+typedef struct abb_iter{
+	const abb_t* abb;
+	size_t iterados;
+	pila_t pila;
+} abb_iter_t;
 
 /***************************
 * Primitivas del nodo
@@ -31,7 +38,7 @@ struct abb{
 
 nodo_t* crear_nodo(const char *clave,void *dato){
 	nodo_t* nodo = malloc(sizeof(nodo_t));
-	if (!nodo) return NULL;
+	if (!nodo)	return NULL;
 	nodo->izq = NULL;
 	nodo->der = NULL;
 	nodo->clave = clave;
@@ -44,7 +51,7 @@ nodo_t* crear_nodo(const char *clave,void *dato){
 ****************************/
 
 bool abb_buscar_y(bool pertenencia, bool guardado, abb_t *abb, nodo_t* raiz, const char *clave, void *dato){
-	if (!abb) return false;
+	if (!abb)	return false;
 
 	nodo_t* act = raiz;
 	if (abb->cmp(clave, act->clave) == 0){
@@ -64,13 +71,13 @@ bool abb_buscar_y(bool pertenencia, bool guardado, abb_t *abb, nodo_t* raiz, con
 	if (guardado){
 		if (clave_mayor && !act->der){
 			nodo_t* nodo = crear_nodo(clave,dato);
-			if (!nodo) return false;
+			if (!nodo)	return false;
 			act->der = nodo;
 			return true;
 		}
 		if (!clave_mayor && !act->izq){
 			nodo_t nodo = crear_nodo(clave,dato);
-			if (!nodo) return false;
+			if (!nodo)	return false;
 			act->izq = nodo;
 			return true;
 		}
@@ -80,7 +87,7 @@ bool abb_buscar_y(bool pertenencia, bool guardado, abb_t *abb, nodo_t* raiz, con
 }
 
 void _destruir_nodos(nodo_t* raiz, abb_destruir_dato_t destruir_dato){
-	if (!raiz) return;
+	if (!raiz)	return;
 	_destruir_nodos(raiz->izq,destruir_dato);
 	_destruir_nodos(raiz->der,destruir_dato);
 	
@@ -237,20 +244,32 @@ void abb_destruir(abb_t *arbol){
 }
 */
 
-/*bool abb_iter_in_avanzar(abb_iter_t *iter){
+bool abb_iter_in_avanzar(abb_iter_t *iter){
+	nodo_t* desapilado = pila_desapilar(iter->pila);
+	if (!desapilado)	return false;
 
+	if (desapilado->derecho) pila_apilar(iter->pila, desapilado);
+	nodo_t* hijo_izq = desapilado->izquierdo;
+	while (hijo_izq){
+		pila_apilar(iter->pila, hijo_izq);
+		hijo_izq = hijo_izq->izq;
+	}
+	return true;
 }
-*/
 
-/*const char *abb_iter_in_ver_actual(const abb_iter_t *iter){
 
+const char *abb_iter_in_ver_actual(const abb_iter_t *iter){
+	nodo_t* actual = pila_ver_tope(iter->pila);
+	if (!actual)	return NULL;
+	return actual->clave;
 }
-*/
 
-/*bool abb_iter_in_al_final(const abb_iter_t *iter){
 
+bool abb_iter_in_al_final(const abb_iter_t *iter){
+	abb_t* abb = iter->abb;
+	return (abb->cantidad == iter->iterados);
 }
-*/
+
 
 /*void abb_iter_in_destruir(abb_iter_t* iter){
 
