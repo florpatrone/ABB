@@ -3,9 +3,9 @@
 #define PERTENECE true
 #define GUARDAR true
 #include "abb.h"
+#include "pila.h"
 #include <stdlib.h>
 #include <string.h>
-#include "pila.h"
 
 enum posicion{IZQUIERDA,RAIZ,DERECHA};
 typedef enum posicion posicion_t;
@@ -19,18 +19,18 @@ struct nodo{
 
 typedef struct nodo nodo_t;
 
-typedef struct abb{
+struct abb{
     nodo_t* raiz;
 	size_t cantidad;
     abb_comparar_clave_t cmp;
     abb_destruir_dato_t destruir_dato;
-} abb_t;
+};
 
-typedef struct abb_iter{
+struct abb_iter{
 	const abb_t* abb;
 	size_t iterados;
 	pila_t* pila;
-} abb_iter_t;
+};
 
 /***************************
 * Primitivas del nodo
@@ -50,7 +50,7 @@ nodo_t* crear_nodo(const char *clave,void *dato){
 * Funciones Auxiliares
 ****************************/
 
-bool abb_buscar_y(bool pertenencia, bool guardado, abb_t *abb, nodo_t* raiz, const char *clave, void *dato){
+bool abb_buscar_y(bool pertenencia, bool guardado, const abb_t *abb, nodo_t* raiz, const char *clave, void *dato){
 	if (!abb)	return false;
 
 	nodo_t* act = raiz;
@@ -61,7 +61,7 @@ bool abb_buscar_y(bool pertenencia, bool guardado, abb_t *abb, nodo_t* raiz, con
 		return true;
 	}
 
-	bool clave_mayor = abb->camp(clave,act->clave) > 0;
+	bool clave_mayor = abb->cmp(clave,act->clave) > 0;
 	
 	if (pertenencia){
 		nodo_t* prox = clave_mayor ?  act->der : act->izq ;
@@ -76,7 +76,7 @@ bool abb_buscar_y(bool pertenencia, bool guardado, abb_t *abb, nodo_t* raiz, con
 			return true;
 		}
 		if (!clave_mayor && !act->izq){
-			nodo_t nodo = crear_nodo(clave,dato);
+			nodo_t* nodo = crear_nodo(clave,dato);
 			if (!nodo)	return false;
 			act->izq = nodo;
 			return true;
@@ -103,12 +103,11 @@ nodo_t* proximo_inorder(nodo_t* nodo, int direccion){
 	if (direccion == DERECHA){
 		if (!nodo->der) return nodo;
 		return proximo_inorder(nodo->der,direccion);
-	}
-	
-	else if (direccion == IZQUIERDA){
+	}else if (direccion == IZQUIERDA){
 		if (!nodo->izq) return nodo;
 		return proximo_inorder(nodo->izq,direccion);
 	}
+	return NULL;
 }
 
 nodo_t* _abb_obtener(nodo_t* nodo, const char* clave, abb_comparar_clave_t cmp, bool obtener_padre){
@@ -166,13 +165,9 @@ void* _abb_borrar(abb_t* arbol, nodo_t* nodo, const char* clave, abb_comparar_cl
 
 	if (padre->izq == nodo){
 		padre->izq = nuevo_hijo;
-	}
-
-	else if (padre->der == nodo){
+	}else if (padre->der == nodo){
 		padre->der = nuevo_hijo;
-	}
-	
-	else{
+	}else{
 		arbol->raiz = nuevo_hijo;
 	}
 
@@ -192,9 +187,7 @@ abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato){
 	abb->destruir_dato = destruir_dato;
 
     return abb;
-
 }
-
 
 bool abb_guardar(abb_t *arbol, const char *clave, void *dato){
 	nodo_t* actual = arbol->raiz;
@@ -204,19 +197,15 @@ bool abb_guardar(abb_t *arbol, const char *clave, void *dato){
 	return guardado;
 }
 
-
 void *abb_borrar(abb_t *arbol, const char *clave){
 	return _abb_borrar(arbol,arbol->raiz,clave,arbol->cmp);
 }
 
 void *abb_obtener(const abb_t *arbol, const char *clave){
 	nodo_t* nodo = _abb_obtener(arbol->raiz,clave,arbol->cmp,!OBTENER_PADRE);
-
 	if (!nodo) return NULL;
-
 	return nodo->dato;
 }
-
 
 bool abb_pertenece(const abb_t *arbol, const char *clave){
 	nodo_t* primero = arbol->raiz;
@@ -226,7 +215,6 @@ bool abb_pertenece(const abb_t *arbol, const char *clave){
 size_t abb_cantidad(abb_t *arbol){
 	return arbol->cantidad;
 }
-
 
 void abb_destruir(abb_t *arbol){
 	abb_destruir_dato_t destruir_dato = arbol->destruir_dato;
@@ -264,13 +252,12 @@ abb_iter_t *abb_iter_in_crear(const abb_t *arbol){
 	return iter;
 }
 
-
 bool abb_iter_in_avanzar(abb_iter_t *iter){
 	nodo_t* desapilado = pila_desapilar(iter->pila);
 	if (!desapilado)	return false;
 
-	if (desapilado->derecho) pila_apilar(iter->pila, desapilado);
-	nodo_t* hijo_izq = desapilado->izquierdo;
+	if (desapilado->der) pila_apilar(iter->pila, desapilado->der);
+	nodo_t* hijo_izq = desapilado->izq;
 	while (hijo_izq){
 		pila_apilar(iter->pila, hijo_izq);
 		hijo_izq = hijo_izq->izq;
@@ -278,25 +265,21 @@ bool abb_iter_in_avanzar(abb_iter_t *iter){
 	return true;
 }
 
-
 const char *abb_iter_in_ver_actual(const abb_iter_t *iter){
 	nodo_t* actual = pila_ver_tope(iter->pila);
 	if (!actual)	return NULL;
 	return actual->clave;
 }
 
-
 bool abb_iter_in_al_final(const abb_iter_t *iter){
-	abb_t* abb = iter->abb;
+	const abb_t* abb = iter->abb;
 	return (abb->cantidad == iter->iterados);
 }
 
-
 void abb_iter_in_destruir(abb_iter_t* iter){
-	pila_destruir(pila);
+	pila_destruir(iter->pila);
 	free(iter);
 }
-
 
 /*********************************
 * Primitivas del iterador interno
