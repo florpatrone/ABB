@@ -29,7 +29,7 @@ typedef struct abb{
 typedef struct abb_iter{
 	const abb_t* abb;
 	size_t iterados;
-	pila_t pila;
+	pila_t* pila;
 } abb_iter_t;
 
 /***************************
@@ -239,10 +239,31 @@ void abb_destruir(abb_t *arbol){
 * Primitivas del iterador externo
 **********************************/
 
-/*abb_iter_t *abb_iter_in_crear(const abb_t *arbol){
+abb_iter_t *abb_iter_in_crear(const abb_t *arbol){
+	abb_iter_t* iter = malloc(sizeof(abb_iter_t));
+	if (!iter) return NULL;
+	
+	pila_t* pila = pila_crear();
+	if (!pila){
+		free(iter);
+		return NULL;
+	}
+	
+	nodo_t* nodo = arbol->raiz;
+	while(nodo){
+		if (!pila_apilar(pila,nodo)){
+			free(iter);
+			pila_destruir(pila);
+			return NULL;
+		}
+		nodo = nodo->izq;
+	}
 
+	iter->pila = pila;
+	iter->abb = arbol;
+	return iter;
 }
-*/
+
 
 bool abb_iter_in_avanzar(abb_iter_t *iter){
 	nodo_t* desapilado = pila_desapilar(iter->pila);
