@@ -55,7 +55,7 @@ void destruir_nodo(nodo_t* nodo){
 ****************************/
 
 bool abb_buscar_y(bool pertenencia, bool guardado, const abb_t *abb, nodo_t* raiz, const char *clave, void *dato){
-	if (!abb)	return false;
+	if (!raiz)	return false;
 
 	nodo_t* act = raiz;
 	if (abb->cmp(clave, act->clave) == 0){
@@ -96,7 +96,7 @@ void _destruir_nodos(nodo_t* raiz, abb_destruir_dato_t destruir_dato){
 	_destruir_nodos(raiz->der,destruir_dato);
 	
 	if (destruir_dato) destruir_dato(raiz->dato);
-	free(raiz);
+	destruir_nodo(raiz);
 }
 
 /***************************
@@ -253,6 +253,7 @@ abb_iter_t *abb_iter_in_crear(const abb_t *arbol){
 
 	iter->pila = pila;
 	iter->abb = arbol;
+	iter->iterados = 0;
 	return iter;
 }
 
