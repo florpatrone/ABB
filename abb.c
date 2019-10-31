@@ -297,7 +297,13 @@ void abb_iter_in_destruir(abb_iter_t* iter){
 * Primitivas del iterador interno
 **********************************/
 
-/*void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void *extra){
-
+void _abb_in_order(nodo_t* nodo, bool visitar(const char *, void *, void *), void *extra){
+	if(nodo == NULL) return;
+	_abb_in_order(nodo->izq, visitar, extra);
+	visitar(nodo->clave,nodo->dato,extra);
+	_abb_in_order(nodo->der, visitar, extra);
 }
-*/
+
+void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void *extra){
+	_abb_in_order(arbol->raiz,visitar,extra);
+}
