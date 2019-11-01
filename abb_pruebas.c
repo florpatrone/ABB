@@ -401,6 +401,86 @@ static void prueba_abb_iterar_volumen(size_t largo)
     abb_destruir(abb);
 }
 
+int sumatoria(int n){
+    int sum = 0;
+    for (int i = 0; i <= n; i++) sum+=i;
+    return sum;
+}
+
+bool _sumatoria_hasta_100(const char* clave, int* dato, int* contador)
+{
+    if (*dato > 100){
+        return false;
+    }
+    (*contador)+=*dato;
+    return true;
+}
+
+bool sumatoria_hasta_100(const char* clave, void* dato, void* contador)
+{
+    return _sumatoria_hasta_100(clave,dato,contador);
+}
+
+void pruebas_iterador_interno_sin_corte(){
+    abb_t* abb = abb_crear(strcmp,free);
+    int largo = 101;
+
+    const size_t largo_clave = 10;
+    char (*claves)[largo_clave] = malloc(largo * largo_clave);
+    size_t* valores[largo];
+
+    bool ok = true;
+    int i = 0;
+    while(ok && i < largo){
+        size_t j = (size_t)rand()%largo;
+        sprintf(claves[i], "%lu", j);
+        if (abb_pertenece(abb,claves[i])) continue;
+        valores[i] = malloc(sizeof(size_t));
+        *valores[i] = j;
+        ok = abb_guardar(abb, claves[i], valores[i]);
+        i++;
+    }
+
+    int contador = 0;
+    abb_in_order(abb,sumatoria_hasta_100,&contador);
+    
+    print_test("Prueba abb iterador interno sin corte", contador == sumatoria(largo-1));
+
+    free(claves);
+    abb_destruir(abb);
+
+}
+
+
+void pruebas_iterador_interno_con_corte(){
+    abb_t* abb = abb_crear(strcmp,free);
+    int largo = 150;
+
+    const size_t largo_clave = 10;
+    char (*claves)[largo_clave] = malloc(largo * largo_clave);
+    size_t* valores[largo];
+
+    bool ok = true;
+    int i = 0;
+    while(ok && i < largo){
+        size_t j = (size_t)rand()%largo;
+        sprintf(claves[i], "%lu", j);
+        if (abb_pertenece(abb,claves[i])) continue;
+        valores[i] = malloc(sizeof(size_t));
+        *valores[i] = j;
+        ok = abb_guardar(abb, claves[i], valores[i]);
+        i++;
+    }
+
+    int contador = 0;
+    abb_in_order(abb,sumatoria_hasta_100,&contador);
+    
+    print_test("Prueba abb iterador interno con corte", contador == sumatoria(100));
+    
+    free(claves);
+    abb_destruir(abb);
+}
+
 /* ******************************************************************
  *                        FUNCIÓN PRINCIPAL
  * *****************************************************************/
@@ -421,6 +501,8 @@ void pruebas_abb_alumno()
     prueba_abb_volumen(VOLUMEN, true);
     prueba_abb_iterar();
     prueba_abb_iterar_volumen(VOLUMEN);
+    pruebas_iterador_interno_sin_corte();
+    pruebas_iterador_interno_con_corte();
 }
 
 void pruebas_volumen(size_t largo)
