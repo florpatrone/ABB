@@ -261,8 +261,6 @@ static void prueba_abb_volumen(size_t largo, bool debug)
         if (!ok) break;
     }
 
-    
-
     free(claves);
 
     /* Destruye el abb - debería liberar los enteros */
@@ -304,6 +302,7 @@ static void prueba_abb_iterar()
     print_test("Prueba abb iterador ver actual, no es el mismo puntero", clave != claves[indice]);
     print_test("Prueba abb iterador avanzar es true", abb_iter_in_avanzar(iter));
     print_test("Prueba abb iterador esta al final, es false", !abb_iter_in_al_final(iter));
+    print_test("Prueba abb iterador el actual es mayor al anterior", strcmp(clave,abb_iter_in_ver_actual(iter)) < 0);
 
     /* Segundo valor */
     clave = abb_iter_in_ver_actual(iter);
@@ -312,6 +311,7 @@ static void prueba_abb_iterar()
     print_test("Prueba abb iterador ver actual, no es el mismo puntero", clave != claves[indice]);
     print_test("Prueba abb iterador avanzar es true", abb_iter_in_avanzar(iter));
     print_test("Prueba abb iterador esta al final, es false", !abb_iter_in_al_final(iter));
+    print_test("Prueba abb iterador el actual es mayor al anterior", strcmp(clave,abb_iter_in_ver_actual(iter)) < 0);
 
     /* Tercer valor */
     clave = abb_iter_in_ver_actual(iter);
@@ -366,6 +366,10 @@ static void prueba_abb_iterar_volumen(size_t largo)
             ok = false;
             break;
         }
+        if (i>0 && !(strcmp(clave,abb_iter_in_ver_actual(iter)) < 0)) {
+            ok = false;
+            break;
+        }    
         clave = abb_iter_in_ver_actual(iter);
         if ( clave == NULL ) {
             ok = false;
