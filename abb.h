@@ -7,6 +7,9 @@ typedef void (*abb_destruir_dato_t) (void *);
 
 /* Primitivas del abb */
 
+/* Crea un arbol binario de búsqueda con una raiz nula, cantidad 0,
+una función de comparación y una función de destrucción.
+Las funciones son pasadas por parámetro al momento de crear la misma.*/
 abb_t* abb_crear(abb_comparar_clave_t cmp, abb_destruir_dato_t destruir_dato);
 
 /* Si la clave ya existe, se reemplaza su dato. De lo contrario,
