@@ -1,6 +1,9 @@
+#define VOLUMEN 15
+
 #include "abb.h"
 #include "testing.h"
 
+#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -204,21 +207,24 @@ static void prueba_abb_valor_null()
 
 static void prueba_abb_volumen(size_t largo, bool debug)
 {
-    abb_t* abb = abb_crear(NULL,NULL);
+    abb_t* abb = abb_crear(strcmp,NULL);
 
     const size_t largo_clave = 10;
     char (*claves)[largo_clave] = malloc(largo * largo_clave);
 
-    unsigned* valores[largo];
+    size_t* valores[largo];
 
     /* Inserta 'largo' parejas en el abb */
     bool ok = true;
-    for (unsigned i = 0; i < largo; i++) {
-        valores[i] = malloc(sizeof(int));
-        sprintf(claves[i], "%08d", i);
-        *valores[i] = i;
+    int i = 0;
+    while(ok && i < largo){
+        size_t j = (size_t)rand()%largo;
+        sprintf(claves[i], "%lu", j);
+        if (abb_pertenece(abb,claves[i])) continue;
+        valores[i] = malloc(sizeof(size_t));
+        *valores[i] = j;
         ok = abb_guardar(abb, claves[i], valores[i]);
-        if (!ok) break;
+        i++;
     }
 
     if (debug) print_test("Prueba abb almacenar muchos elementos", ok);
@@ -246,7 +252,7 @@ static void prueba_abb_volumen(size_t largo, bool debug)
 
     /* Destruye el abb y crea uno nuevo que sí libera */
     abb_destruir(abb);
-    abb = abb_crear(NULL,free);
+    abb = abb_crear(strcmp,free);
 
     /* Inserta 'largo' parejas en el abb */
     ok = true;
@@ -254,6 +260,8 @@ static void prueba_abb_volumen(size_t largo, bool debug)
         ok = abb_guardar(abb, claves[i], valores[i]);
         if (!ok) break;
     }
+
+    
 
     free(claves);
 
@@ -324,20 +332,24 @@ static void prueba_abb_iterar()
 
 static void prueba_abb_iterar_volumen(size_t largo)
 {
-    abb_t* abb = abb_crear(NULL,NULL);
+    abb_t* abb = abb_crear(strcmp,free);
 
     const size_t largo_clave = 10;
     char (*claves)[largo_clave] = malloc(largo * largo_clave);
 
-    size_t valores[largo];
+    size_t* valores[largo];
 
     /* Inserta 'largo' parejas en el abb */
     bool ok = true;
-    for (unsigned i = 0; i < largo; i++) {
-        sprintf(claves[i], "%08d", i);
-        valores[i] = i;
-        ok = abb_guardar(abb, claves[i], &valores[i]);
-        if (!ok) break;
+    int i = 0;
+    while(ok && i < largo){
+        size_t j = (size_t)rand()%largo;
+        sprintf(claves[i], "%lu", j);
+        if (abb_pertenece(abb,claves[i])) continue;
+        valores[i] = malloc(sizeof(size_t));
+        *valores[i] = j;
+        ok = abb_guardar(abb, claves[i], valores[i]);
+        i++;
     }
 
     // Prueba de iteración sobre las claves almacenadas.
@@ -345,7 +357,7 @@ static void prueba_abb_iterar_volumen(size_t largo)
     print_test("Prueba abb iterador esta al final, es false", !abb_iter_in_al_final(iter));
 
     ok = true;
-    unsigned i;
+    i = 0;
     const char *clave;
     size_t *valor;
 
@@ -373,7 +385,7 @@ static void prueba_abb_iterar_volumen(size_t largo)
 
     ok = true;
     for (i = 0; i < largo; i++) {
-        if ( valores[i] != largo ) {
+        if ( *valores[i] != largo ) {
             ok = false;
             break;
         }
@@ -393,6 +405,7 @@ static void prueba_abb_iterar_volumen(size_t largo)
 void pruebas_abb_alumno()
 {
     /* Ejecuta todas las pruebas unitarias. */
+    srand((unsigned int)time(NULL));
     prueba_crear_abb_vacio();
     prueba_iterar_abb_vacio();
     prueba_abb_insertar();
@@ -401,9 +414,9 @@ void pruebas_abb_alumno()
     prueba_abb_borrar();
     prueba_abb_clave_vacia();
     prueba_abb_valor_null();
-    //prueba_abb_volumen(5000, true);
+    prueba_abb_volumen(VOLUMEN, true);
     prueba_abb_iterar();
-    //prueba_abb_iterar_volumen(5000);
+    prueba_abb_iterar_volumen(VOLUMEN);
 }
 
 void pruebas_volumen(size_t largo)

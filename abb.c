@@ -146,11 +146,8 @@ nodo_t* _abb_obtener(nodo_t* nodo, const char* clave, abb_comparar_clave_t cmp, 
 
 void* _abb_borrar(abb_t* arbol, nodo_t* nodo, const char* clave, abb_comparar_clave_t cmp){
 	if (!nodo) return NULL;
-
-	nodo_t* padre = _abb_obtener(nodo,clave,cmp,OBTENER_PADRE);
-	if (!padre) return NULL;
-	nodo = _abb_obtener(padre,clave,cmp,!OBTENER_PADRE);
-
+	nodo_t* padre = _abb_obtener(arbol->raiz,clave,cmp,OBTENER_PADRE);
+	if (!padre) return NULL;	
 	void* dato = nodo->dato;
 	
 	//caso 3
@@ -158,9 +155,9 @@ void* _abb_borrar(abb_t* arbol, nodo_t* nodo, const char* clave, abb_comparar_cl
 		nodo_t* reemplazo = proximo_inorder(nodo->der, IZQUIERDA);
 		char* clave_reemplazo = strdup(reemplazo->clave);
 		void* dato_reemplazo = _abb_borrar(arbol,reemplazo,reemplazo->clave,cmp);
+		free(nodo->clave);
 		nodo->clave = clave_reemplazo;
 		nodo->dato = dato_reemplazo;
-		arbol->cantidad--;
 		return dato;
 	}
 
@@ -176,7 +173,6 @@ void* _abb_borrar(abb_t* arbol, nodo_t* nodo, const char* clave, abb_comparar_cl
 	}
 
 	destruir_nodo(nodo);
-	arbol->cantidad--;
 	return dato;
 }
 
@@ -209,7 +205,11 @@ bool abb_guardar(abb_t *arbol, const char *clave, void *dato){
 }
 
 void *abb_borrar(abb_t *arbol, const char *clave){
-	return _abb_borrar(arbol,arbol->raiz,clave,arbol->cmp);
+	nodo_t* nodo = _abb_obtener(arbol->raiz,clave,arbol->cmp,!OBTENER_PADRE);
+	if (!nodo) return NULL;
+	void* dato = _abb_borrar(arbol,nodo,clave,arbol->cmp);
+	arbol->cantidad--;
+	return dato;
 }
 
 void *abb_obtener(const abb_t *arbol, const char *clave){
