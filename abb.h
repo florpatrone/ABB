@@ -16,8 +16,15 @@ En caso de error, devuelve false.
 Pre: el arbol debe haber sido creado. */
 bool abb_guardar(abb_t *arbol, const char *clave, void *dato);
 
+/* Borra el nodo con la clave indicada y lo devuelve.
+Si el nodo no está, devuelve NULL.
+Pre: el arbol debe haber sido creado.
+Post: el arbol tiene un elemento menos. */
 void *abb_borrar(abb_t *arbol, const char *clave);
 
+/* Devuelve el dato del nodo con la clave pasada por parámetro.
+De no estar en el arbol, devuelve NULL.
+Pre: el arbol debe haber sido creado.*/
 void *abb_obtener(const abb_t *arbol, const char *clave);
 
 /* Devuelve true si la clave buscada se encuentra en el arbol.
@@ -37,6 +44,8 @@ typedef struct abb_iter abb_iter_t;
 
 /* Primitivas del iterador externo del abb */
 
+/* Crea un iterador del arbol que señala al primer
+elemento inorder del mismo.*/
 abb_iter_t *abb_iter_in_crear(const abb_t *arbol);
 
 /* Avanza una posición del iterador de manera INORDER y
@@ -51,8 +60,10 @@ const char *abb_iter_in_ver_actual(const abb_iter_t *iter);
 o, de lo contrario, false. */
 bool abb_iter_in_al_final(const abb_iter_t *iter);
 
+/* Destruye el iterador */
 void abb_iter_in_destruir(abb_iter_t* iter);
 
 /* Primitivas del iterador interno del abb */
 
+/* Aplica la función "visitar" nodo a nodo de modo INORDER */
 void abb_in_order(abb_t *arbol, bool visitar(const char *, void *, void *), void *extra);

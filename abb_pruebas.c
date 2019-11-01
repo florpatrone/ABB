@@ -1,4 +1,4 @@
-#define VOLUMEN 15
+#define VOLUMEN 1000
 
 #include "abb.h"
 #include "testing.h"
@@ -9,8 +9,10 @@
 #include <string.h>
 #include <unistd.h>  // For ssize_t in Linux.
 
-// gcc -g -std=c99 -Wall -Wconversion -Wno-sign-conversion -Werror -o pruebas *.c
-// valgrind --leak-check=full --track-origins=yes --show-reachable=yes ./pruebas
+/*
+gcc -g -std=c99 -Wall -Wconversion -Wno-sign-conversion -Werror -o pruebas *.c
+valgrind --leak-check=full --track-origins=yes --show-reachable=yes ./pruebas
+*/
 /* ******************************************************************
  *                        PRUEBAS UNITARIAS
  * *****************************************************************/
