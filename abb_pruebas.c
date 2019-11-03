@@ -234,7 +234,7 @@ static void prueba_abb_volumen(size_t largo, bool debug)
     if (debug) print_test("Prueba abb la cantidad de elementos es correcta", abb_cantidad(abb) == largo);
 
     /* Verifica que devuelva los valores correctos */
-    for (size_t i = 0; i < largo; i++) {
+    for (i = 0; i < largo; i++) {
         ok = abb_pertenece(abb, claves[i]);
         if (!ok) break;
         ok = abb_obtener(abb, claves[i]) == valores[i];
@@ -245,7 +245,7 @@ static void prueba_abb_volumen(size_t largo, bool debug)
     if (debug) print_test("Prueba abb la cantidad de elementos es correcta", abb_cantidad(abb) == largo);
 
     /* Verifica que borre y devuelva los valores correctos */
-    for (size_t i = 0; i < largo; i++) {
+    for (i = 0; i < largo; i++) {
         ok = abb_borrar(abb, claves[i]) == valores[i];
         if (!ok) break;
     }
@@ -259,7 +259,7 @@ static void prueba_abb_volumen(size_t largo, bool debug)
 
     /* Inserta 'largo' parejas en el abb */
     ok = true;
-    for (size_t i = 0; i < largo; i++) {
+    for (i = 0; i < largo; i++) {
         ok = abb_guardar(abb, claves[i], valores[i]);
         if (!ok) break;
     }
