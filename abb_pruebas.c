@@ -404,83 +404,50 @@ static void prueba_abb_iterar_volumen(size_t largo)
     abb_destruir(abb);
 }
 
-int sumatoria(int n){
-    int sum = 0;
-    for (int i = 0; i <= n; i++) sum+=i;
-    return sum;
-}
-
-bool _sumatoria_hasta_100(const char* clave, int* dato, int* contador)
+bool _sumatoria_hasta_v(const char* clave, int* dato, int* contador)
 {
-    if (*dato > 100){
-        return false;
-    }
-    (*contador)+=*dato;
+    if (strcmp(clave,"v") > 0) return false;
+    (*contador)+=clave[0];
     return true;
 }
 
-bool sumatoria_hasta_100(const char* clave, void* dato, void* contador)
+bool sumatoria_hasta_v(const char* clave, void* dato, void* contador)
 {
-    return _sumatoria_hasta_100(clave,dato,contador);
+    return _sumatoria_hasta_v(clave,dato,contador);
 }
 
 void pruebas_iterador_interno_sin_corte(){
     abb_t* abb = abb_crear(strcmp,free);
-    int largo = 101;
 
-    const size_t largo_clave = 10;
-    char (*claves)[largo_clave] = malloc(largo * largo_clave);
-    size_t* valores[largo];
+    char* vector[10] = {"h","d","a","f","m","j","l","v","r","t"};
 
-    bool ok = true;
-    int i = 0;
-    while(ok && i < largo){
-        size_t j = (size_t)rand()%largo;
-        sprintf(claves[i], "%lu", j);
-        if (abb_pertenece(abb,claves[i])) continue;
-        valores[i] = malloc(sizeof(size_t));
-        *valores[i] = j;
-        ok = abb_guardar(abb, claves[i], valores[i]);
-        i++;
+    for (int i = 0; i < 10; i++){
+        int* n = malloc(sizeof(int));
+        *n = i;
+        abb_guardar(abb,vector[i],n);
     }
 
     int contador = 0;
-    abb_in_order(abb,sumatoria_hasta_100,&contador);
-    
-    print_test("Prueba abb iterador interno sin corte", contador == sumatoria(largo-1));
-
-    free(claves);
+    abb_in_order(abb,sumatoria_hasta_v,&contador);
+    print_test("Prueba abb iterador interno sin corte", contador == 1074);
     abb_destruir(abb);
 
 }
 
-
 void pruebas_iterador_interno_con_corte(){
     abb_t* abb = abb_crear(strcmp,free);
-    int largo = 150;
+    
+   char* vector[14] = {"h","d","a","w","f","m","x","j","l","v","y","r","t","z"};
 
-    const size_t largo_clave = 10;
-    char (*claves)[largo_clave] = malloc(largo * largo_clave);
-    size_t* valores[largo];
-
-    bool ok = true;
-    int i = 0;
-    while(ok && i < largo){
-        size_t j = (size_t)rand()%largo;
-        sprintf(claves[i], "%lu", j);
-        if (abb_pertenece(abb,claves[i])) continue;
-        valores[i] = malloc(sizeof(size_t));
-        *valores[i] = j;
-        ok = abb_guardar(abb, claves[i], valores[i]);
-        i++;
+    for (int i = 0; i < 14; i++){
+        int* n = malloc(sizeof(int));
+        *n = i;
+        abb_guardar(abb,vector[i],n);
     }
 
     int contador = 0;
-    abb_in_order(abb,sumatoria_hasta_100,&contador);
-    
-    print_test("Prueba abb iterador interno con corte", contador == sumatoria(100));
-    
-    free(claves);
+    abb_in_order(abb,sumatoria_hasta_v,&contador);
+    print_test("Prueba abb iterador interno con corte", contador == 1074);
     abb_destruir(abb);
 }
 

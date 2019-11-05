@@ -300,7 +300,7 @@ void abb_iter_in_destruir(abb_iter_t* iter){
 void _abb_in_order(nodo_t* nodo, bool visitar(const char *, void *, void *), void *extra){
 	if(nodo == NULL) return;
 	_abb_in_order(nodo->izq, visitar, extra);
-	visitar(nodo->clave,nodo->dato,extra);
+	if (!visitar(nodo->clave,nodo->dato,extra)) return;
 	_abb_in_order(nodo->der, visitar, extra);
 }
 
